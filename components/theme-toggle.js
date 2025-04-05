@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useTheme } from "@/components/theme-provider"
-import { Moon, Sun } from "lucide-react"
+import { useTheme } from "@/components/theme-provider";
+import { Moon, Sun } from "lucide-react";
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="flex items-center space-x-2">
@@ -24,6 +24,5 @@ export default function ThemeToggle() {
       </button>
       <Moon className="h-5 w-5 text-muted-foreground" />
     </div>
-  )
+  );
 }
-

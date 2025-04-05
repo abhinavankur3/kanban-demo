@@ -1,19 +1,19 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // Update a column
 export async function PUT(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { columnId } = params
-    const { name, order } = await request.json()
+    const { columnId } = params;
+    const { name, order } = await request.json();
 
     // Check if column exists and belongs to user's board
     const column = await prisma.column.findUnique({
@@ -23,14 +23,17 @@ export async function PUT(request, { params }) {
       include: {
         board: true,
       },
-    })
+    });
 
     if (!column) {
-      return NextResponse.json({ message: "Column not found" }, { status: 404 })
+      return NextResponse.json(
+        { message: "Column not found" },
+        { status: 404 }
+      );
     }
 
     if (column.board.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Update column
@@ -42,25 +45,28 @@ export async function PUT(request, { params }) {
         name: name !== undefined ? name : column.name,
         order: order !== undefined ? order : column.order,
       },
-    })
+    });
 
-    return NextResponse.json(updatedColumn)
+    return NextResponse.json(updatedColumn);
   } catch (error) {
-    console.error("Error updating column:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error updating column:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 // Delete a column
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { columnId } = params
+    const { columnId } = params;
 
     // Check if column exists and belongs to user's board
     const column = await prisma.column.findUnique({
@@ -70,14 +76,17 @@ export async function DELETE(request, { params }) {
       include: {
         board: true,
       },
-    })
+    });
 
     if (!column) {
-      return NextResponse.json({ message: "Column not found" }, { status: 404 })
+      return NextResponse.json(
+        { message: "Column not found" },
+        { status: 404 }
+      );
     }
 
     if (column.board.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Delete column (cascade will delete tasks)
@@ -85,7 +94,7 @@ export async function DELETE(request, { params }) {
       where: {
         id: columnId,
       },
-    })
+    });
 
     // Reorder remaining columns
     const remainingColumns = await prisma.column.findMany({
@@ -98,7 +107,7 @@ export async function DELETE(request, { params }) {
       orderBy: {
         order: "asc",
       },
-    })
+    });
 
     for (const col of remainingColumns) {
       await prisma.column.update({
@@ -108,13 +117,15 @@ export async function DELETE(request, { params }) {
         data: {
           order: col.order - 1,
         },
-      })
+      });
     }
 
-    return NextResponse.json({ message: "Column deleted successfully" })
+    return NextResponse.json({ message: "Column deleted successfully" });
   } catch (error) {
-    console.error("Error deleting column:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error deleting column:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
-

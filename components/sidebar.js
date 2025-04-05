@@ -1,60 +1,60 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
-import { Eye, EyeOff, Plus, LogOut } from "lucide-react"
-import { signOut } from "next-auth/react"
-import ThemeToggle from "@/components/theme-toggle"
-import CreateBoardModal from "@/components/modals/create-board-modal"
-import { useMobile } from "@/hooks/use-mobile"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Eye, EyeOff, Plus, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
+import ThemeToggle from "@/components/theme-toggle";
+import CreateBoardModal from "@/components/modals/create-board-modal";
+import { useMobile } from "@/hooks/use-mobile";
 
 export default function Sidebar() {
-  const pathname = usePathname()
-  const router = useRouter()
-  const [boards, setBoards] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [isSidebarHidden, setIsSidebarHidden] = useState(false)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const isMobile = useMobile()
-  
+  const pathname = usePathname();
+  const router = useRouter();
+  const [boards, setBoards] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isSidebarHidden, setIsSidebarHidden] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const isMobile = useMobile();
+
   const handleLogout = async () => {
     try {
-      setIsLoggingOut(true)
-      await signOut({ redirect: false })
-      router.push('/login')
-      router.refresh()
+      setIsLoggingOut(true);
+      await signOut({ redirect: false });
+      router.push("/login");
+      router.refresh();
     } catch (error) {
-      console.error('Error logging out:', error)
+      console.error("Error logging out:", error);
     } finally {
-      setIsLoggingOut(false)
+      setIsLoggingOut(false);
     }
-  }
+  };
 
   useEffect(() => {
     const fetchBoards = async () => {
       try {
-        const response = await fetch("/api/boards")
-        if (!response.ok) throw new Error("Failed to fetch boards")
-        const data = await response.json()
-        setBoards(data)
+        const response = await fetch("/api/boards");
+        if (!response.ok) throw new Error("Failed to fetch boards");
+        const data = await response.json();
+        setBoards(data);
       } catch (error) {
-        console.error("Error fetching boards:", error)
+        console.error("Error fetching boards:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchBoards()
-  }, [])
+    fetchBoards();
+  }, []);
 
   const handleCreateBoard = (newBoard) => {
-    setBoards((prev) => [...prev, newBoard])
-  }
+    setBoards((prev) => [...prev, newBoard]);
+  };
 
   if (isMobile) {
-    return null
+    return null;
   }
 
   if (isSidebarHidden) {
@@ -65,7 +65,7 @@ export default function Sidebar() {
       >
         <Eye className="h-5 w-5" />
       </button>
-    )
+    );
   }
 
   return (
@@ -138,7 +138,7 @@ export default function Sidebar() {
           className="flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
-          {isLoggingOut ? 'Logging out...' : 'Logout'}
+          {isLoggingOut ? "Logging out..." : "Logout"}
         </button>
       </div>
 
@@ -150,6 +150,5 @@ export default function Sidebar() {
         />
       )}
     </aside>
-  )
+  );
 }
-

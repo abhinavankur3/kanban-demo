@@ -1,15 +1,22 @@
-"use client"
+"use client";
 
-export default function DeleteTaskModal({ isOpen, onClose, onDelete, taskTitle }) {
-  if (!isOpen) return null
+export default function DeleteTaskModal({
+  isOpen,
+  onClose,
+  onDelete,
+  taskTitle,
+}) {
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
-        <h2 className="mb-4 text-xl font-bold text-destructive">Delete this task?</h2>
+        <h2 className="mb-4 text-xl font-bold text-destructive">
+          Delete this task?
+        </h2>
         <p className="mb-6 text-muted-foreground">
-          Are you sure you want to delete the &quot;{taskTitle}&quot; task and its subtasks? This action cannot be
-          reversed.
+          Are you sure you want to delete the &quot;{taskTitle}&quot; task and
+          its subtasks? This action cannot be reversed.
         </p>
 
         <div className="flex justify-end space-x-2">
@@ -28,6 +35,5 @@ export default function DeleteTaskModal({ isOpen, onClose, onDelete, taskTitle }
         </div>
       </div>
     </div>
-  )
+  );
 }
-

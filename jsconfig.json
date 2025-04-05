@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./components/*"],
+      "@/context/*": ["./context/*"],
+      "@/modals/*": ["./components/modals/*"],
+      "@/hooks/*": ["./hooks/*"],
+      "@/lib/*": ["./lib/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

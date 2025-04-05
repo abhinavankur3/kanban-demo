@@ -1,66 +1,76 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { X, Plus } from "lucide-react"
-import { useBoardContext } from "@/context/board-context"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { X, Plus } from "lucide-react";
+import { useBoardContext } from "@/context/board-context";
 
-export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) {
-  const router = useRouter()
-  const { board, setBoard } = useBoardContext()
+export default function EditTaskModal({
+  isOpen,
+  onClose,
+  task,
+  onTaskUpdated,
+}) {
+  const router = useRouter();
+  const { board, setBoard } = useBoardContext();
 
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [columnId, setColumnId] = useState("")
-  const [subtasks, setSubtasks] = useState([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState("")
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [columnId, setColumnId] = useState("");
+  const [subtasks, setSubtasks] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (task) {
-      setTitle(task.title)
-      setDescription(task.description || "")
-      setColumnId(task.columnId)
+      setTitle(task.title);
+      setDescription(task.description || "");
+      setColumnId(task.columnId);
       setSubtasks(
         task.subtasks.map((st) => ({
           id: st.id,
           title: st.title,
           isCompleted: st.isCompleted,
-        })),
-      )
+        }))
+      );
     }
-  }, [task])
+  }, [task]);
 
   const handleAddSubtask = () => {
-    setSubtasks([...subtasks, { id: crypto.randomUUID(), title: "", isCompleted: false }])
-  }
+    setSubtasks([
+      ...subtasks,
+      { id: crypto.randomUUID(), title: "", isCompleted: false },
+    ]);
+  };
 
   const handleRemoveSubtask = (id) => {
-    setSubtasks(subtasks.filter((st) => st.id !== id))
-  }
+    setSubtasks(subtasks.filter((st) => st.id !== id));
+  };
 
   const handleSubtaskTitleChange = (id, value) => {
-    setSubtasks(subtasks.map((st) => (st.id === id ? { ...st, title: value } : st)))
-  }
+    setSubtasks(
+      subtasks.map((st) => (st.id === id ? { ...st, title: value } : st))
+    );
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!title.trim()) {
-      setError("Task title is required")
-      return
+      setError("Task title is required");
+      return;
     }
 
     if (!columnId) {
-      setError("Status column is required")
-      return
+      setError("Status column is required");
+      return;
     }
 
     // Filter out empty subtasks
-    const filteredSubtasks = subtasks.filter((st) => st.title.trim())
+    const filteredSubtasks = subtasks.filter((st) => st.title.trim());
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`/api/tasks/${task.id}`, {
@@ -74,13 +84,13 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
           columnId,
           subtasks: filteredSubtasks,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to update task")
+        throw new Error("Failed to update task");
       }
 
-      const updatedTask = await response.json()
+      const updatedTask = await response.json();
 
       // Update the local board state
       setBoard((prevBoard) => {
@@ -91,66 +101,75 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
               return {
                 ...col,
                 tasks: col.tasks.filter((t) => t.id !== task.id),
-              }
+              };
             }
             if (col.id === columnId) {
               return {
                 ...col,
                 tasks: [...col.tasks, updatedTask],
-              }
+              };
             }
-            return col
-          })
+            return col;
+          });
 
           return {
             ...prevBoard,
             columns: updatedColumns,
-          }
+          };
         } else {
           // Just update the task in its current column
           const updatedColumns = prevBoard.columns.map((col) => {
             if (col.id === columnId) {
               return {
                 ...col,
-                tasks: col.tasks.map((t) => (t.id === task.id ? updatedTask : t)),
-              }
+                tasks: col.tasks.map((t) =>
+                  t.id === task.id ? updatedTask : t
+                ),
+              };
             }
-            return col
-          })
+            return col;
+          });
 
           return {
             ...prevBoard,
             columns: updatedColumns,
-          }
+          };
         }
-      })
+      });
 
       if (onTaskUpdated) {
-        onTaskUpdated(updatedTask)
+        onTaskUpdated(updatedTask);
       }
 
-      onClose()
-      router.refresh()
+      onClose();
+      router.refresh();
     } catch (error) {
-      console.error("Error updating task:", error)
-      setError("Failed to update task. Please try again.")
+      console.error("Error updating task:", error);
+      setError("Failed to update task. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="mb-4 text-xl font-bold">Edit Task</h2>
 
-        {error && <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="task-title" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="task-title"
+              className="mb-2 block text-sm font-medium"
+            >
               Title
             </label>
             <input
@@ -164,7 +183,10 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
           </div>
 
           <div className="mb-4">
-            <label htmlFor="task-description" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="task-description"
+              className="mb-2 block text-sm font-medium"
+            >
               Description
             </label>
             <textarea
@@ -185,7 +207,9 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
                   <input
                     type="text"
                     value={subtask.title}
-                    onChange={(e) => handleSubtaskTitleChange(subtask.id, e.target.value)}
+                    onChange={(e) =>
+                      handleSubtaskTitleChange(subtask.id, e.target.value)
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="e.g. Make coffee"
                   />
@@ -210,7 +234,10 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
           </button>
 
           <div className="mb-4">
-            <label htmlFor="task-status" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="task-status"
+              className="mb-2 block text-sm font-medium"
+            >
               Status
             </label>
             <select
@@ -246,6 +273,5 @@ export default function EditTaskModal({ isOpen, onClose, task, onTaskUpdated }) 
         </form>
       </div>
     </div>
-  )
+  );
 }
-

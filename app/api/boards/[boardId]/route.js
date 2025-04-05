@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // Get a specific board
 export async function GET(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { boardId } = params
+    const { boardId } = await params;
 
     const board = await prisma.board.findUnique({
       where: {
@@ -40,33 +40,39 @@ export async function GET(request, { params }) {
           },
         },
       },
-    })
+    });
 
     if (!board) {
-      return NextResponse.json({ message: "Board not found" }, { status: 404 })
+      return NextResponse.json({ message: "Board not found" }, { status: 404 });
     }
 
-    return NextResponse.json(board)
+    return NextResponse.json(board);
   } catch (error) {
-    console.error("Error fetching board:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error fetching board:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 // Update a board
 export async function PUT(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { boardId } = params
-    const { name, columns } = await request.json()
+    const { boardId } = await params;
+    const { name, columns } = await request.json();
 
     if (!name) {
-      return NextResponse.json({ message: "Board name is required" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Board name is required" },
+        { status: 400 }
+      );
     }
 
     // Check if board exists and belongs to user
@@ -78,10 +84,10 @@ export async function PUT(request, { params }) {
       include: {
         columns: true,
       },
-    })
+    });
 
     if (!existingBoard) {
-      return NextResponse.json({ message: "Board not found" }, { status: 404 })
+      return NextResponse.json({ message: "Board not found" }, { status: 404 });
     }
 
     // Update board name
@@ -92,15 +98,17 @@ export async function PUT(request, { params }) {
       data: {
         name,
       },
-    })
+    });
 
     // Handle columns update if provided
     if (columns) {
       // Get existing column IDs
-      const existingColumnIds = existingBoard.columns.map((col) => col.id)
+      const existingColumnIds = existingBoard.columns.map((col) => col.id);
 
       // Find columns to delete (existing but not in the update)
-      const columnsToDelete = existingBoard.columns.filter((col) => !columns.some((newCol) => newCol.id === col.id))
+      const columnsToDelete = existingBoard.columns.filter(
+        (col) => !columns.some((newCol) => newCol.id === col.id)
+      );
 
       // Delete columns that are no longer needed
       if (columnsToDelete.length > 0) {
@@ -110,12 +118,12 @@ export async function PUT(request, { params }) {
               in: columnsToDelete.map((col) => col.id),
             },
           },
-        })
+        });
       }
 
       // Update or create columns
       for (let i = 0; i < columns.length; i++) {
-        const column = columns[i]
+        const column = columns[i];
 
         if (column.id && existingColumnIds.includes(column.id)) {
           // Update existing column
@@ -127,7 +135,7 @@ export async function PUT(request, { params }) {
               name: column.name,
               order: i,
             },
-          })
+          });
         } else {
           // Create new column
           await prisma.column.create({
@@ -136,28 +144,31 @@ export async function PUT(request, { params }) {
               order: i,
               boardId,
             },
-          })
+          });
         }
       }
     }
 
-    return NextResponse.json(updatedBoard)
+    return NextResponse.json(updatedBoard);
   } catch (error) {
-    console.error("Error updating board:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error updating board:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 // Delete a board
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { boardId } = params
+    const { boardId } = await params;
 
     // Check if board exists and belongs to user
     const board = await prisma.board.findUnique({
@@ -165,10 +176,10 @@ export async function DELETE(request, { params }) {
         id: boardId,
         userId: session.user.id,
       },
-    })
+    });
 
     if (!board) {
-      return NextResponse.json({ message: "Board not found" }, { status: 404 })
+      return NextResponse.json({ message: "Board not found" }, { status: 404 });
     }
 
     // Delete board (cascade will delete columns and tasks)
@@ -176,12 +187,14 @@ export async function DELETE(request, { params }) {
       where: {
         id: boardId,
       },
-    })
+    });
 
-    return NextResponse.json({ message: "Board deleted successfully" })
+    return NextResponse.json({ message: "Board deleted successfully" });
   } catch (error) {
-    console.error("Error deleting board:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error deleting board:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
-

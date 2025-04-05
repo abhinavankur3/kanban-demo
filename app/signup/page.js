@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import ThemeToggle from "@/components/theme-toggle"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function Signup() {
-  const router = useRouter()
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     if (!name || !email || !password) {
-      setError("Please fill in all fields")
-      setIsLoading(false)
-      return
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters")
-      setIsLoading(false)
-      return
+      setError("Password must be at least 6 characters");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -37,20 +37,20 @@ export default function Signup() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Something went wrong")
+        throw new Error(data.message || "Something went wrong");
       }
 
-      router.push("/login?registered=true")
+      router.push("/login?registered=true");
     } catch (error) {
-      setError(error.message)
-      setIsLoading(false)
+      setError(error.message);
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -62,7 +62,11 @@ export default function Signup() {
           <h1 className="text-3xl font-bold text-primary">kanban</h1>
           <h2 className="mt-6 text-2xl font-semibold">Sign Up</h2>
         </div>
-        {error && <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
+        {error && (
+          <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -127,12 +131,14 @@ export default function Signup() {
         </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-primary hover:underline">
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
             Login
           </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

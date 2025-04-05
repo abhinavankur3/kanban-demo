@@ -1,49 +1,51 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { X, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { X, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function CreateBoardModal({ isOpen, onClose, onCreateBoard }) {
-  const router = useRouter()
-  const [name, setName] = useState("")
+  const router = useRouter();
+  const [name, setName] = useState("");
   const [columns, setColumns] = useState([
     { id: crypto.randomUUID(), name: "TODO" },
     { id: crypto.randomUUID(), name: "DOING" },
     { id: crypto.randomUUID(), name: "DONE" },
-  ])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState("")
+  ]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAddColumn = () => {
-    setColumns([...columns, { id: crypto.randomUUID(), name: "" }])
-  }
+    setColumns([...columns, { id: crypto.randomUUID(), name: "" }]);
+  };
 
   const handleRemoveColumn = (id) => {
-    setColumns(columns.filter((col) => col.id !== id))
-  }
+    setColumns(columns.filter((col) => col.id !== id));
+  };
 
   const handleColumnNameChange = (id, value) => {
-    setColumns(columns.map((col) => (col.id === id ? { ...col, name: value } : col)))
-  }
+    setColumns(
+      columns.map((col) => (col.id === id ? { ...col, name: value } : col))
+    );
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!name.trim()) {
-      setError("Board name is required")
-      return
+      setError("Board name is required");
+      return;
     }
 
     // Validate column names
-    const emptyColumns = columns.filter((col) => !col.name.trim())
+    const emptyColumns = columns.filter((col) => !col.name.trim());
     if (emptyColumns.length > 0) {
-      setError("All columns must have a name")
-      return
+      setError("All columns must have a name");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const response = await fetch("/api/boards", {
@@ -55,41 +57,48 @@ export default function CreateBoardModal({ isOpen, onClose, onCreateBoard }) {
           name,
           columns,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to create board")
+        throw new Error("Failed to create board");
       }
 
-      const newBoard = await response.json()
+      const newBoard = await response.json();
 
       if (onCreateBoard) {
-        onCreateBoard(newBoard)
+        onCreateBoard(newBoard);
       }
 
-      onClose()
-      router.push(`/boards/${newBoard.id}`)
-      router.refresh()
+      onClose();
+      router.push(`/boards/${newBoard.id}`);
+      router.refresh();
     } catch (error) {
-      console.error("Error creating board:", error)
-      setError("Failed to create board. Please try again.")
+      console.error("Error creating board:", error);
+      setError("Failed to create board. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="mb-4 text-xl font-bold">Add New Board</h2>
 
-        {error && <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="board-name" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="board-name"
+              className="mb-2 block text-sm font-medium"
+            >
               Board Name
             </label>
             <input
@@ -103,14 +112,18 @@ export default function CreateBoardModal({ isOpen, onClose, onCreateBoard }) {
           </div>
 
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">Board Columns</label>
+            <label className="mb-2 block text-sm font-medium">
+              Board Columns
+            </label>
             <div className="space-y-2">
               {columns.map((column) => (
                 <div key={column.id} className="flex items-center">
                   <input
                     type="text"
                     value={column.name}
-                    onChange={(e) => handleColumnNameChange(column.id, e.target.value)}
+                    onChange={(e) =>
+                      handleColumnNameChange(column.id, e.target.value)
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="e.g. TODO"
                   />
@@ -153,6 +166,5 @@ export default function CreateBoardModal({ isOpen, onClose, onCreateBoard }) {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

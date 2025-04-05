@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 // Get a specific task
 export async function GET(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { taskId } = params
+    const { taskId } = params;
 
     const task = await prisma.task.findUnique({
       where: {
@@ -30,34 +30,38 @@ export async function GET(request, { params }) {
           },
         },
       },
-    })
+    });
 
     if (!task) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 })
+      return NextResponse.json({ message: "Task not found" }, { status: 404 });
     }
 
     if (task.column.board.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json(task)
+    return NextResponse.json(task);
   } catch (error) {
-    console.error("Error fetching task:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error fetching task:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 // Update a task
 export async function PUT(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { taskId } = params
-    const { title, description, columnId, order, subtasks } = await request.json()
+    const { taskId } = params;
+    const { title, description, columnId, order, subtasks } =
+      await request.json();
 
     // Check if task exists and belongs to user's board
     const task = await prisma.task.findUnique({
@@ -72,14 +76,14 @@ export async function PUT(request, { params }) {
         },
         subtasks: true,
       },
-    })
+    });
 
     if (!task) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 })
+      return NextResponse.json({ message: "Task not found" }, { status: 404 });
     }
 
     if (task.column.board.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // If changing column, verify the new column belongs to the same board
@@ -91,14 +95,17 @@ export async function PUT(request, { params }) {
         include: {
           board: true,
         },
-      })
+      });
 
       if (!newColumn) {
-        return NextResponse.json({ message: "Column not found" }, { status: 404 })
+        return NextResponse.json(
+          { message: "Column not found" },
+          { status: 404 }
+        );
       }
 
       if (newColumn.board.userId !== session.user.id) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
     }
 
@@ -116,15 +123,17 @@ export async function PUT(request, { params }) {
       include: {
         subtasks: true,
       },
-    })
+    });
 
     // Handle subtasks update if provided
     if (subtasks) {
       // Get existing subtask IDs
-      const existingSubtaskIds = task.subtasks.map((st) => st.id)
+      const existingSubtaskIds = task.subtasks.map((st) => st.id);
 
       // Find subtasks to delete (existing but not in the update)
-      const subtasksToDelete = task.subtasks.filter((st) => !subtasks.some((newSt) => newSt.id === st.id))
+      const subtasksToDelete = task.subtasks.filter(
+        (st) => !subtasks.some((newSt) => newSt.id === st.id)
+      );
 
       // Delete subtasks that are no longer needed
       if (subtasksToDelete.length > 0) {
@@ -134,7 +143,7 @@ export async function PUT(request, { params }) {
               in: subtasksToDelete.map((st) => st.id),
             },
           },
-        })
+        });
       }
 
       // Update or create subtasks
@@ -149,7 +158,7 @@ export async function PUT(request, { params }) {
               title: subtask.title,
               isCompleted: subtask.isCompleted,
             },
-          })
+          });
         } else {
           // Create new subtask
           await prisma.subtask.create({
@@ -158,28 +167,31 @@ export async function PUT(request, { params }) {
               isCompleted: subtask.isCompleted || false,
               taskId,
             },
-          })
+          });
         }
       }
     }
 
-    return NextResponse.json(updatedTask)
+    return NextResponse.json(updatedTask);
   } catch (error) {
-    console.error("Error updating task:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error updating task:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
 
 // Delete a task
 export async function DELETE(request, { params }) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
     if (!session) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { taskId } = params
+    const { taskId } = params;
 
     // Check if task exists and belongs to user's board
     const task = await prisma.task.findUnique({
@@ -193,14 +205,14 @@ export async function DELETE(request, { params }) {
           },
         },
       },
-    })
+    });
 
     if (!task) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 })
+      return NextResponse.json({ message: "Task not found" }, { status: 404 });
     }
 
     if (task.column.board.userId !== session.user.id) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     // Delete task (cascade will delete subtasks)
@@ -208,7 +220,7 @@ export async function DELETE(request, { params }) {
       where: {
         id: taskId,
       },
-    })
+    });
 
     // Reorder remaining tasks in the column
     const remainingTasks = await prisma.task.findMany({
@@ -221,7 +233,7 @@ export async function DELETE(request, { params }) {
       orderBy: {
         order: "asc",
       },
-    })
+    });
 
     for (const t of remainingTasks) {
       await prisma.task.update({
@@ -231,13 +243,15 @@ export async function DELETE(request, { params }) {
         data: {
           order: t.order - 1,
         },
-      })
+      });
     }
 
-    return NextResponse.json({ message: "Task deleted successfully" })
+    return NextResponse.json({ message: "Task deleted successfully" });
   } catch (error) {
-    console.error("Error deleting task:", error)
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 })
+    console.error("Error deleting task:", error);
+    return NextResponse.json(
+      { message: "Something went wrong" },
+      { status: 500 }
+    );
   }
 }
-

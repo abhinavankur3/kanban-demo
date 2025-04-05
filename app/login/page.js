@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import ThemeToggle from "@/components/theme-toggle"
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function Login() {
-  const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     if (!email || !password) {
-      setError("Please fill in all fields")
-      setIsLoading(false)
-      return
+      setError("Please fill in all fields");
+      setIsLoading(false);
+      return;
     }
 
     try {
@@ -29,21 +29,21 @@ export default function Login() {
         redirect: false,
         email,
         password,
-      })
+      });
 
       if (result.error) {
-        setError("Invalid email or password")
-        setIsLoading(false)
-        return
+        setError("Invalid email or password");
+        setIsLoading(false);
+        return;
       }
 
-      router.push("/boards")
-      router.refresh()
+      router.push("/boards");
+      router.refresh();
     } catch (error) {
-      setError("Something went wrong. Please try again.")
-      setIsLoading(false)
+      setError("Something went wrong. Please try again.");
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -55,7 +55,11 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-primary">kanban</h1>
           <h2 className="mt-6 text-2xl font-semibold">Login</h2>
         </div>
-        {error && <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
+        {error && (
+          <div className="rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           <div className="space-y-4">
             <div>
@@ -104,12 +108,14 @@ export default function Login() {
         </form>
         <div className="mt-4 text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-primary hover:underline">
+          <Link
+            href="/signup"
+            className="font-medium text-primary hover:underline"
+          >
             Sign up
           </Link>
         </div>
       </div>
     </div>
-  )
+  );
 }
-

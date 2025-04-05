@@ -1,57 +1,59 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { X, Plus } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import { X, Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function EditBoardModal({ isOpen, onClose, board }) {
-  const router = useRouter()
-  const [name, setName] = useState("")
-  const [columns, setColumns] = useState([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState("")
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [columns, setColumns] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (board) {
-      setName(board.name)
+      setName(board.name);
       setColumns(
         board.columns.map((col) => ({
           id: col.id,
           name: col.name,
-        })),
-      )
+        }))
+      );
     }
-  }, [board])
+  }, [board]);
 
   const handleAddColumn = () => {
-    setColumns([...columns, { id: crypto.randomUUID(), name: "" }])
-  }
+    setColumns([...columns, { id: crypto.randomUUID(), name: "" }]);
+  };
 
   const handleRemoveColumn = (id) => {
-    setColumns(columns.filter((col) => col.id !== id))
-  }
+    setColumns(columns.filter((col) => col.id !== id));
+  };
 
   const handleColumnNameChange = (id, value) => {
-    setColumns(columns.map((col) => (col.id === id ? { ...col, name: value } : col)))
-  }
+    setColumns(
+      columns.map((col) => (col.id === id ? { ...col, name: value } : col))
+    );
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (!name.trim()) {
-      setError("Board name is required")
-      return
+      setError("Board name is required");
+      return;
     }
 
     // Validate column names
-    const emptyColumns = columns.filter((col) => !col.name.trim())
+    const emptyColumns = columns.filter((col) => !col.name.trim());
     if (emptyColumns.length > 0) {
-      setError("All columns must have a name")
-      return
+      setError("All columns must have a name");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       const response = await fetch(`/api/boards/${board.id}`, {
@@ -63,34 +65,41 @@ export default function EditBoardModal({ isOpen, onClose, board }) {
           name,
           columns,
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to update board")
+        throw new Error("Failed to update board");
       }
 
-      onClose()
-      router.refresh()
+      onClose();
+      router.refresh();
     } catch (error) {
-      console.error("Error updating board:", error)
-      setError("Failed to update board. Please try again.")
+      console.error("Error updating board:", error);
+      setError("Failed to update board. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="mb-4 text-xl font-bold">Edit Board</h2>
 
-        {error && <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">{error}</div>}
+        {error && (
+          <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="board-name" className="mb-2 block text-sm font-medium">
+            <label
+              htmlFor="board-name"
+              className="mb-2 block text-sm font-medium"
+            >
               Board Name
             </label>
             <input
@@ -104,14 +113,18 @@ export default function EditBoardModal({ isOpen, onClose, board }) {
           </div>
 
           <div className="mb-4">
-            <label className="mb-2 block text-sm font-medium">Board Columns</label>
+            <label className="mb-2 block text-sm font-medium">
+              Board Columns
+            </label>
             <div className="space-y-2">
               {columns.map((column) => (
                 <div key={column.id} className="flex items-center">
                   <input
                     type="text"
                     value={column.name}
-                    onChange={(e) => handleColumnNameChange(column.id, e.target.value)}
+                    onChange={(e) =>
+                      handleColumnNameChange(column.id, e.target.value)
+                    }
                     className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     placeholder="e.g. TODO"
                   />
@@ -154,6 +167,5 @@ export default function EditBoardModal({ isOpen, onClose, board }) {
         </form>
       </div>
     </div>
-  )
+  );
 }
-

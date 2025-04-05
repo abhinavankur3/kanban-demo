@@ -12,12 +12,19 @@ export default function Column({ column, provided }) {
     if (lowerName.includes("todo")) return "bg-cyan-500";
     if (lowerName.includes("doing")) return "bg-purple-500";
     if (lowerName.includes("done")) return "bg-green-500";
-    
+
     // Use a deterministic approach based on the column name
     // This prevents hydration errors by ensuring the same color is chosen
     // on both server and client for the same column name
-    const colors = ["bg-orange-500", "bg-pink-500", "bg-yellow-500", "bg-indigo-500"];
-    const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = [
+      "bg-orange-500",
+      "bg-pink-500",
+      "bg-yellow-500",
+      "bg-indigo-500",
+    ];
+    const hash = name
+      .split("")
+      .reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   };
 

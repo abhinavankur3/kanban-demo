@@ -2,6 +2,14 @@
 
 A modern, full-stack Kanban board application built with Next.js, Prisma, and NextAuth.js. This project provides a sleek, drag-and-drop interface for managing tasks across customizable boards and columns.
 
+## ScreenShots
+
+Light Mode
+![Light Mode](public/ss-light.png)
+
+Dark Mode
+![Dark Mode](public/ss-dark.png)
+
 ## Features
 
 - **User Authentication**: Secure login and registration with NextAuth.js

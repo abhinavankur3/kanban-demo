@@ -1,15 +1,15 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import Sidebar from "@/components/sidebar"
-import Header from "@/components/header"
-import BoardProviderWrapper from "@/components/board-provider-wrapper"
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import Sidebar from "@/components/sidebar";
+import Header from "@/components/header";
+import BoardProviderWrapper from "@/components/board-provider-wrapper";
 
 export default async function BoardsLayout({ children }) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/login")
+    redirect("/login");
   }
 
   return (
@@ -22,6 +22,5 @@ export default async function BoardsLayout({ children }) {
         </BoardProviderWrapper>
       </div>
     </div>
-  )
+  );
 }
-
