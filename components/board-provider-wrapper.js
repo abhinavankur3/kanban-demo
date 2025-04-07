@@ -16,7 +16,7 @@ export default function BoardProviderWrapper({ children }) {
   useEffect(() => {
     setBoardId(params?.boardId || null);
     setMounted(true);
-  }, []);
+  }, [params]);
 
   useEffect(() => {
     if (!mounted || !boardId) {
