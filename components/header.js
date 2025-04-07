@@ -14,7 +14,7 @@ export default function Header() {
   // Get params and context
   const params = useParams();
   const router = useRouter();
-  const { board } = useBoardContext();
+  const { board, setBoard } = useBoardContext();
 
   // Initialize state with consistent values to avoid hydration mismatch
   const [boardId, setBoardId] = useState(null);
@@ -27,15 +27,29 @@ export default function Header() {
 
   // Set boardId after component mounts to avoid hydration mismatch
   useEffect(() => {
-    setBoardId(params?.boardId || null);
-    setMounted(true);
-  }, [params]);
+    if (params?.boardId) {
+      fetch(`/api/boards/${params?.boardId}`, {
+        method: "GET",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setBoard(data);
+          setBoardId(params?.boardId);
+          setMounted(true);
+        })
+        .catch((error) => {
+          console.error("Error fetching board:", error);
+        });
+    }
+  }, [params?.boardId]);
 
   const handleDeleteBoard = async () => {
     try {
       const response = await fetch(`/api/boards/${boardId}`, {
         method: "DELETE",
       });
+
+      setIsDeleteBoardModalOpen(false);
 
       if (!response.ok) throw new Error("Failed to delete board");
 

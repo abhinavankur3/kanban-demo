@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useParams } from "next/navigation";
 import { Eye, EyeOff, Plus, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 import ThemeToggle from "@/components/theme-toggle";
@@ -12,6 +12,8 @@ import { useMobile } from "@/hooks/use-mobile";
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const params = useParams();
+
   const [boards, setBoards] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -47,7 +49,7 @@ export default function Sidebar() {
     };
 
     fetchBoards();
-  }, []);
+  }, [params?.boardId]);
 
   const handleCreateBoard = (newBoard) => {
     setBoards((prev) => [...prev, newBoard]);
